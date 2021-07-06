@@ -33,51 +33,42 @@ app.post("/", function (req, res) {
     const lastName = req.body.lastName;
     const email = req.body.email;
     //console.log(firstName + " " + lastName + " " + email);
-    var serverError = false;
+    let serverError = false;
 
     const subscribingUser = {firstName: firstName, lastName: lastName, email: email};
-    const run = async () => {
-        const response = await client.lists.batchListMembers("10c98fb2c6", {
-          members: [
-              //one member
-              {
-                email_address: email,
-                status: "subscribed",
-                merge_fields: {
-                    FNAME: firstName,
-                    LNAME: lastName
-                    } 
-          }
-        ]
+    const member = {
+        email_address: email,
+        status: "subscribed",
+        merge_fields: {
+            FNAME: firstName,
+            LNAME: lastName
+            } 
+        };
+    const members = [member];
+    const addUser = async () => {
+        try {
+            const response = await client.lists.batchListMembers("10c98fb2c6", {
+          members: [member],
         });
+        //console.log(response);
         if (response.error_count !== 0) {
             serverError = true;
-        } 
-        //console.log(serverError); 
-        //This section cannot run after run(), since the serverERror will not be updated after run()
-        if (serverError) {
-            //console.log("if serverError true" + serverError);
+            //console.log("within if, inside async: " + serverError);
+            //console.log("if serverError true: print " + serverError);
             res.sendFile(__dirname + "/failure.html");
         } else {
-            //console.log("if serverError false" + serverError);
+            //console.log("if serverError false: print " + serverError);
             res.sendFile(__dirname + "/success.html");
-        }
-      };
-      
-    run();
-    
-});
-
-//const url = "https://us6.api.mailchimp.com/3.0/lists/10c98fb2c6";
-/**const request = https.request(url, options, function(response){
-    response.on("data", function(data)) {
-        console.log(JSON.parse(data));
+        } 
+    } catch (error) {
+        console.error(error);
     }
+        }; 
+             
+    addUser();
+
 });
 
-request.write(jsonData);
-req.end();
-*/
 
 //need to response to button type "submit" instead of button
 app.post("/failure", function(req, res) {
@@ -86,9 +77,9 @@ app.post("/failure", function(req, res) {
     res.redirect("/");
 });
 
-// app.listen(3000, function () {
-//     console.log("Express server started on port 3000...");
-// });
+app.listen(3000, function () {
+    console.log("Express server started on port 3000...");
+});
 
 
 //npm install @mailchimp/mailchimp_marketing
@@ -101,7 +92,7 @@ app.post("/failure", function(req, res) {
 
 //Now works locally and Heroku as well
 //web: node app.js
-app.listen(process.env.PORT || 3000, function() {
-    console.log("Server started on Heroku or 3000 locally");
-});
+// app.listen(process.env.PORT || 3000, function() {
+//     console.log("Server started on Heroku or 3000 locally");
+// });
 
