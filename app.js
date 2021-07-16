@@ -24,7 +24,7 @@ app.get("/success", function(req, res){
 })
 
 client.setConfig({
-    apiKey: "dacf034f47cb2f49e660139543a85066-us6",
+    apiKey: apiKey,
     server: "us6",  //Server name is the part after the dash in your API key. It should be something like "us1".
   });
 
